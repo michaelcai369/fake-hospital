@@ -56,7 +56,27 @@ def main() -> None:
     redact = st.sidebar.toggle("发送前隐藏常见编号", value=True)
     st.sidebar.markdown("本工具不会作出诊断、处方或检查决策。")
 
-    consent = st.checkbox("我确认已获得必要授权，且音频中不含可识别患者信息。")
+    consent = st.checkbox("我确认已获得必要授权，且内容中不含可识别患者信息。")
+
+    st.subheader("方式一：直接粘贴转录文本（推荐手机使用）")
+    st.caption("在 iPhone 录音中复制转写内容，粘贴到这里后可直接生成病历草稿，无需再次上传音频。")
+    pasted_transcript = st.text_area(
+        "粘贴问诊转录文本",
+        placeholder="长按 iPhone 录音中的文字，选择复制后粘贴到这里…",
+        height=180,
+        key="pasted_transcript",
+    )
+    if st.button(
+        "使用这段文本",
+        type="primary",
+        disabled=not (consent and pasted_transcript.strip()),
+    ):
+        st.session_state["transcript"] = pasted_transcript.strip()
+        st.session_state.pop("note", None)
+
+    st.divider()
+    st.subheader("方式二：录音或上传音频")
+    st.caption("如手机录音不可用，可使用上方的直接粘贴文本方式。")
     audio_recording = st.audio_input("录制模拟或授权的问诊音频（5 分钟内、10 MB 内）", sample_rate=16_000)
     uploaded_file = st.file_uploader(
         "或上传音频", type=["wav", "mp3", "m4a", "mp4", "webm", "ogg", "flac"]
